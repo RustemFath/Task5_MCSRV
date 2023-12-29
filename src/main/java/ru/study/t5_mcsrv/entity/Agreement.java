@@ -20,6 +20,14 @@ public class Agreement {
     @SequenceGenerator(name = "agreem_seq", sequenceName = "table_id_seq", allocationSize = 1)
     private Long id;
 
-    @Column(name = "agreement_id")
-    private String agreementId;
+    /**
+     * ID продукта
+     */
+    @Column(name = "product_id")
+    private Long productId;
+
+    /**
+     * Номер ДС
+     */
+    private String number;
 }
