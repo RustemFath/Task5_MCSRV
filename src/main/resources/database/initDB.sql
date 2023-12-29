@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS tpp_product_register
 (
     id            bigint
         CONSTRAINT pk_tpp_product_register PRIMARY KEY,
-    product_id    bigint,
+    product_id    bigint references tpp_product(id),
     type          varchar(100),
     account_id    bigint,
     currency_code varchar(20),
@@ -64,8 +64,9 @@ CREATE TABLE IF NOT EXISTS tpp_product_register
 
 CREATE TABLE IF NOT EXISTS agreements
 (
-    id           bigint CONSTRAINT pk_tpp_arrangement PRIMARY KEY,
-    agreement_id bigint,
+    id         bigint CONSTRAINT pk_agreements PRIMARY KEY,
+    product_id bigint references tpp_product(id),
+    number     varchar(50)
 );
 
 CREATE TABLE IF NOT EXISTS tpp_account_pool
