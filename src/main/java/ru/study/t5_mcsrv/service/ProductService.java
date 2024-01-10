@@ -1,8 +1,6 @@
 package ru.study.t5_mcsrv.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.study.t5_mcsrv.entity.Product;
@@ -31,19 +29,21 @@ public class ProductService {
     private ProductRegisterTypeRepository productRegisterTypeRepo;
     @Autowired
     private ProductRequestToProductMapper productRequestToProductMapper;
+    @Autowired
+    private ProductRegisterService productRegisterService;
 
     private static final String CLIENT_ACCOUNT_TYPE = "Клиентский";
 
     public ProductResponse validateRequest(ProductRequest request) {
         // Проверка Request.Body на обязательность
         if (request == null) {
-            return getBadResponse("Request.Body не заполнено.");
+            return ProductResponse.getBadResponse("Request.Body не заполнено.");
         }
 
         // Проверка заполненности обязательных полей
         if (!request.isValidate()) {
-            return getBadResponse(String.format("Имя обязательного параметра %s не заполнено.",
-                    request.getFailField()));
+            return ProductResponse.getBadResponse(
+                    String.format("Имя обязательного параметра %s не заполнено.", request.getFailField()));
         }
 
         return null;
@@ -51,65 +51,45 @@ public class ProductService {
 
     @Transactional
     public ProductResponse createProduct(ProductRequest request) {
-        ProductResponse response = new ProductResponse();
-
         // Проверка таблицы ЭП на дубли
         List<Product> list = productRepo.findProductsByNumber(request.getContractNumber());
         if (!list.isEmpty()) {
-            response.setInstanceId(
+            return ProductResponse.getBadResponse(
                     String.format("Параметр ContractNumber № договора %s уже существует для ЭП с ИД %d",
-                            request.getContractNumber(), list.get(0).getId()));
-            response.setStatus(HttpStatus.BAD_REQUEST);
-            return response;
+                    request.getContractNumber(), list.get(0).getId()));
         }
 
         ProductClass productClass = productClassRepo.findProductClassByValue(request.getProductCode());
         if (productClass == null) {
-            response.setInstanceId(
+            return ProductResponse.getNotFoundResponse(
                     String.format("КодПродукта %s не найден в Каталоге продуктов", request.getProductCode()));
-            response.setStatus(HttpStatus.NOT_FOUND);
-            return response;
         }
 
         // Поиск списка типов регистра по коду продукта
-        List<ProductRegisterType> listProdRegType =
+        List<ProductRegisterType> prodRegTypeList =
                 productRegisterTypeRepo.findProductRegisterTypesByProductClassCodeAndAccountType(
                         request.getProductCode(), CLIENT_ACCOUNT_TYPE);
-        if (listProdRegType.isEmpty()) {
-            response.setInstanceId(
+        if (prodRegTypeList.isEmpty()) {
+            return ProductResponse.getNotFoundResponse(
                     String.format("Список ТипРегистра не найден в Каталоге типа регистра по КодПродукта %s",
-                            request.getProductCode()));
-            response.setStatus(HttpStatus.NOT_FOUND);
-            return response;
+                    request.getProductCode()));
         }
 
         // Подготовка к созданию ЭП
-        ProductRequestMap productRequestMap = new ProductRequestMap();
-        productRequestMap.setProductRequest(request);
-        productRequestMap.setProductClass(productClass);
+        ProductRequestMap productRequestMap = ProductRequestMap.createMap()
+                .setProductRequest(request)
+                .setProductClass(productClass);
 
         // Добавить запись в таблицу tpp_product
         Product product = productRequestToProductMapper.map(productRequestMap);
-        productRepo.save(product);
+        product = productRepo.save(product);
 
         // Создать ПР
+        request.setInstanceId(product.getId());
+        List<Long> productRegisters = productRegisterService.createProductRegisters(prodRegTypeList, request);
 
-        response.setInstanceId(product.getId().toString());
-        response.setStatus(HttpStatus.OK);
-        return response;
-    }
-
-    public ProductResponse getInternalErrorResponse(String errorText) {
-        ProductResponse response = new ProductResponse();
-        response.setInstanceId(errorText);
-        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR);
-        return response;
-    }
-
-    private ProductResponse getBadResponse(String errorText) {
-        ProductResponse response = new ProductResponse();
-        response.setInstanceId(errorText);
-        response.setStatus(HttpStatus.BAD_REQUEST);
+        ProductResponse response = ProductResponse.getOkResponse(product.getId().toString());
+        response.setRegisterId(productRegisters.stream().map(Object::toString).toList());
         return response;
     }
 }

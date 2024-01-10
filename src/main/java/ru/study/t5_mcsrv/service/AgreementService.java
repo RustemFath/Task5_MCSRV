@@ -1,7 +1,6 @@
 package ru.study.t5_mcsrv.service;
 
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.study.t5_mcsrv.entity.Agreement;
@@ -22,25 +21,21 @@ public class AgreementService {
     private AgreementRepository agreementRepo;
 
     @Transactional
-    public ResponseEntity<ProductResponse> createAgreement(ProductRequest request) {
-        ProductResponse response = new ProductResponse();
-
+    public ProductResponse createAgreement(ProductRequest request) {
         // Проверка на существование договора с ID
-        Product oldProduct = productRepo.findById(request.getContractId()).orElse(null);
-        if (oldProduct == null) {
-            response.setInstanceId(
+        Product product = productRepo.findById(request.getContractId()).orElse(null);
+        if (product == null) {
+            return ProductResponse.getNotFoundResponse(
                     String.format("ЭП с ИД %d не найден в БД", request.getContractId()));
-            return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
         }
 
         // Проверка таблицы ДС на дубли
         for (var dc : request.getInstanceAgreements()) {
             List<Agreement> listDC = agreementRepo.findAgreementsByNumber(dc.getNumber());
             if (!listDC.isEmpty()) {
-                response.setInstanceId(
+                return ProductResponse.getBadResponse(
                         String.format("Параметр № Дополнительного соглашения (сделки) Number %s уже существует для ЭП с ИД %d",
                                 dc.getNumber(), listDC.get(0).getProductId()));
-                return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
             }
         }
 
@@ -48,7 +43,9 @@ public class AgreementService {
 
         // Запрос у ГС счета и привязка к продуктовому регистру
 
-        response.setInstanceId(oldProduct.getId().toString());
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        ProductResponse response = new ProductResponse();
+        response.setInstanceId(product.getId().toString());
+        response.setStatus(HttpStatus.OK);
+        return response;
     }
 }
