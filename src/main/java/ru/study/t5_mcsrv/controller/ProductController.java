@@ -23,7 +23,6 @@ public class ProductController {
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<ProductResponse> postRequest(@RequestBody ProductRequest request) {
-
         try {
             // Проверка Request
             ProductResponse response = productService.validateRequest(request);
@@ -37,11 +36,11 @@ public class ProductController {
             }
 
             // Создание нового доп соглашения к существующему договору
-            return agreementService.createAgreement(request);
+            return getResponseEntity(agreementService.createAgreement(request));
         }
         catch (Exception e) {
             log.info(e.toString());
-            return getResponseEntity(productService.getInternalErrorResponse(e.toString()));
+            return getResponseEntity(ProductResponse.getInternalErrorResponse(e.toString()));
         }
     }
 
