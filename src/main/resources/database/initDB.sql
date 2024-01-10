@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS tpp_product
 (
     id                                 bigint,
-    product_code_id                    bigint,
+    product_code_id                    bigint references tpp_ref_product_class(internal_id),
     client_id                          bigint,
     type                               varchar(50),
     number                             varchar(50),
@@ -84,7 +84,7 @@ CREATE TABLE IF NOT EXISTS tpp_account_number
 (
     id              bigint
         CONSTRAINT pk_tpp_account_number PRIMARY KEY,
-    account_pool_id bigint,
+    account_pool_id bigint references tpp_account_pool(id),
     account_number  varchar(25)
 );
 
