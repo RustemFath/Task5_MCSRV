@@ -1,5 +1,6 @@
 package ru.study.t5_mcsrv.controller;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import ru.study.t5_mcsrv.service.ProductService;
 
 @RestController
 @Slf4j
+@Setter
 @RequestMapping(path = "${rest.product-endpoint}", produces = "application/json")
 public class ProductController {
     @Autowired
@@ -23,6 +25,7 @@ public class ProductController {
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<ProductResponse> postRequest(@RequestBody ProductRequest request) {
+        log.info("get post request - {}", request);
         try {
             // Проверка Request
             ProductResponse response = productService.validateRequest(request);
@@ -45,6 +48,7 @@ public class ProductController {
     }
 
     private ResponseEntity<ProductResponse> getResponseEntity(ProductResponse response) {
+        log.info("send response - {}", response.getStatus());
         return new ResponseEntity<>(response, response.getStatus());
     }
 }

@@ -20,6 +20,7 @@ public class ProductRegisterController {
 
     @PostMapping(consumes = "application/json")
     public ResponseEntity<ProductRegisterResponse> postRequest(@RequestBody ProductRegisterRequest request) {
+        log.info("get post request - {}", request);
         try {
             // Проверка Request
             ProductRegisterResponse response = productRegisterService.validateRequest(request);
@@ -37,6 +38,7 @@ public class ProductRegisterController {
     }
 
     private ResponseEntity<ProductRegisterResponse> getResponseEntity(ProductRegisterResponse response) {
+        log.info("send response - {}", response.getStatus());
         return new ResponseEntity<>(response, response.getStatus());
     }
 }
