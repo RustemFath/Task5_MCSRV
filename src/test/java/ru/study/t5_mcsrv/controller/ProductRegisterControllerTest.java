@@ -1,10 +1,9 @@
-package ru.study.t5_mcsrv;
+package ru.study.t5_mcsrv.controller;
 
 import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import ru.study.t5_mcsrv.controller.ProductRegisterController;
 import ru.study.t5_mcsrv.message.ProductRegisterRequest;
 import ru.study.t5_mcsrv.message.ProductRegisterResponse;
 import ru.study.t5_mcsrv.service.ProductRegisterService;
