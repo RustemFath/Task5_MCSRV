@@ -9,6 +9,7 @@ import ru.study.t5_mcsrv.mapping.ProductRegRequestToProductRegMapper;
 import ru.study.t5_mcsrv.message.ProductRegisterRequest;
 import ru.study.t5_mcsrv.message.ProductRegisterResponse;
 import ru.study.t5_mcsrv.message.ProductRequest;
+import ru.study.t5_mcsrv.utils.ResponseMaker;
 import ru.study.t5_mcsrv.repo.*;
 
 import java.util.ArrayList;
@@ -37,12 +38,12 @@ public class ProductRegisterService {
     public ProductRegisterResponse validateRequest(ProductRegisterRequest request) {
         // Проверка Request.Body на обязательность
         if (request == null) {
-            return ProductRegisterResponse.getBadResponse("Request.Body не заполнено.");
+            return ResponseMaker.getBadResponse(new ProductRegisterResponse(), "Request.Body не заполнено.");
         }
 
         // Проверка заполненности обязательных полей
         if (!request.isValidate()) {
-            return ProductRegisterResponse.getBadResponse(
+            return ResponseMaker.getBadResponse(new ProductRegisterResponse(),
                     String.format("Имя обязательного параметра %s не заполнено.", request.getFailField()));
         }
 
@@ -55,7 +56,7 @@ public class ProductRegisterService {
         List<ProductRegister> productRegisterList = productRegisterRepo.findProductRegistersByProductIdAndType(
                 request.getInstanceId(), request.getRegisterTypeCode());
         if (!productRegisterList.isEmpty()) {
-            return ProductRegisterResponse.getBadResponse(
+            return ResponseMaker.getBadResponse(new ProductRegisterResponse(),
                     String.format("Параметр registryTypeCode тип регистра %s уже существует для ЭП с ИД %d",
                             request.getRegisterTypeCode(), productRegisterList.get(0).getProductId()));
         }
@@ -63,7 +64,7 @@ public class ProductRegisterService {
         // Получение родительского экземпляра продукта
         Product product = productRepo.findById(request.getInstanceId()).orElse(null);
         if (product == null) {
-            return ProductRegisterResponse.getBadResponse(
+            return ResponseMaker.getBadResponse(new ProductRegisterResponse(),
                     String.format("Экземпляр Продукта с ИД %d не найден в справочнике продуктов",
                             request.getInstanceId()));
         }
@@ -71,7 +72,7 @@ public class ProductRegisterService {
         // Получение Кода Продукта по экземпляру продукта
         ProductClass productClass = productClassRepo.findProductClassByInternalId(product.getProductCodeId());
         if (productClass == null) {
-            return ProductRegisterResponse.getNotFoundResponse(
+            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(),
                     String.format("КодПродукта с ИД %d не найден в Каталоге продуктов", product.getProductCodeId()));
         }
 
@@ -79,14 +80,14 @@ public class ProductRegisterService {
         List<ProductRegisterType> listProdRegType =
                 productRegisterTypeRepo.findProductRegisterTypesByProductClassCode(productClass.getValue());
         if (listProdRegType.isEmpty()) {
-            return ProductRegisterResponse.getNotFoundResponse(
+            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(),
                     String.format("Список ТипРегистра не найден в Каталоге типа регистра по КодПродукта %s",
                             productClass.getValue()));
         }
 
         // Проверка наличия КодаПродукта в списке типов регистра
         if (listProdRegType.stream().noneMatch(t -> t.getValue().equals(request.getRegisterTypeCode()))) {
-            return ProductRegisterResponse.getNotFoundResponse(
+            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(),
                     String.format("КодПродукта %s не найдено в Каталоге продуктов для данного типа Регистра %s",
                             productClass.getValue(), request.getRegisterTypeCode()));
         }
@@ -109,7 +110,7 @@ public class ProductRegisterService {
         ProductRegister productRegister = productRegRequestToProductRegMapper.map(productRegRequestMap);
         productRegister = productRegisterRepo.save(productRegister);
 
-        return ProductRegisterResponse.getOkResponse(productRegister.getId().toString());
+        return ResponseMaker.getOkResponse(new ProductRegisterResponse(), productRegister.getId().toString());
     }
 
     public List<Long> createProductRegisters(List<ProductRegisterType> types, ProductRequest request) {

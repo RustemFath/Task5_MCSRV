@@ -1,12 +1,13 @@
-package ru.study.t5_mcsrv.message;
+package ru.study.t5_mcsrv.utils;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.springframework.http.HttpStatus;
+import ru.study.t5_mcsrv.message.ProductResponse;
 
-public class ProductResponseTest {
+public class ResponseMakerTest {
     private static final String INSTANCE_ID = "instance_id";
 
     @DisplayName("Успешное создание ответов")
@@ -22,10 +23,10 @@ public class ProductResponseTest {
 
     private ProductResponse getResponse(HttpStatus status) {
         return switch (status) {
-            case BAD_REQUEST -> ProductResponse.getBadResponse(INSTANCE_ID);
-            case OK -> ProductResponse.getOkResponse(INSTANCE_ID);
-            case INTERNAL_SERVER_ERROR -> ProductResponse.getInternalErrorResponse(INSTANCE_ID);
-            case NOT_FOUND -> ProductResponse.getNotFoundResponse(INSTANCE_ID);
+            case BAD_REQUEST -> ResponseMaker.getBadResponse(new ProductResponse(), INSTANCE_ID);
+            case OK -> ResponseMaker.getOkResponse(new ProductResponse(), INSTANCE_ID);
+            case INTERNAL_SERVER_ERROR -> ResponseMaker.getInternalErrorResponse(new ProductResponse(), INSTANCE_ID);
+            case NOT_FOUND -> ResponseMaker.getNotFoundResponse(new ProductResponse(), INSTANCE_ID);
             default -> null;
         };
     }

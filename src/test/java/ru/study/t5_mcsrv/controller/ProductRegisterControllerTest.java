@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.study.t5_mcsrv.message.ProductRegisterRequest;
 import ru.study.t5_mcsrv.message.ProductRegisterResponse;
+import ru.study.t5_mcsrv.utils.ResponseMaker;
 import ru.study.t5_mcsrv.service.ProductRegisterService;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -30,7 +31,7 @@ public class ProductRegisterControllerTest {
         final ProductRegisterRequest request = new ProductRegisterRequest();
 
         Mockito.when(productRegisterServiceMock.validateRequest(request))
-                .thenReturn(ProductRegisterResponse.getBadResponse("BAD"));
+                .thenReturn(ResponseMaker.getBadResponse(new ProductRegisterResponse(), "BAD"));
 
         final ResponseEntity<ProductRegisterResponse> response = productRegisterController.postRequest(request);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -40,7 +41,7 @@ public class ProductRegisterControllerTest {
     @DisplayName("Ошибка - получение null запроса на создание продуктового регистра")
     public void error_nullRequest() {
         Mockito.when(productRegisterServiceMock.validateRequest(null))
-                .thenReturn(ProductRegisterResponse.getBadResponse("BAD"));
+                .thenReturn(ResponseMaker.getBadResponse(new ProductRegisterResponse(), "BAD"));
 
         final ResponseEntity<ProductRegisterResponse> response = productRegisterController.postRequest(null);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -53,7 +54,7 @@ public class ProductRegisterControllerTest {
 
         Mockito.when(productRegisterServiceMock.validateRequest(request)).thenReturn(null);
         Mockito.when(productRegisterServiceMock.createProductRegister(request))
-                .thenReturn(ProductRegisterResponse.getOkResponse("1"));
+                .thenReturn(ResponseMaker.getOkResponse(new ProductRegisterResponse(), "1"));
 
         final ResponseEntity<ProductRegisterResponse> response = productRegisterController.postRequest(request);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());

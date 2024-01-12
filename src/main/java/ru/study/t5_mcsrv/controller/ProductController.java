@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.study.t5_mcsrv.message.ProductRequest;
 import ru.study.t5_mcsrv.message.ProductResponse;
+import ru.study.t5_mcsrv.utils.ResponseMaker;
 import ru.study.t5_mcsrv.service.AgreementService;
 import ru.study.t5_mcsrv.service.ProductService;
 
@@ -43,7 +44,7 @@ public class ProductController {
         }
         catch (Exception e) {
             log.info(e.toString());
-            return getResponseEntity(ProductResponse.getInternalErrorResponse(e.toString()));
+            return getResponseEntity(ResponseMaker.getInternalErrorResponse(new ProductResponse(), e.toString()));
         }
     }
 

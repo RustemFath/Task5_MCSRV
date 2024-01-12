@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import ru.study.t5_mcsrv.message.ProductRequest;
 import ru.study.t5_mcsrv.message.ProductResponse;
+import ru.study.t5_mcsrv.utils.ResponseMaker;
 import ru.study.t5_mcsrv.service.AgreementService;
 import ru.study.t5_mcsrv.service.ProductService;
 
@@ -37,7 +38,7 @@ public class ProductControllerTest {
         final ProductRequest request = new ProductRequest();
 
         Mockito.when(productServiceMock.validateRequest(request))
-                .thenReturn(ProductResponse.getBadResponse("BAD"));
+                .thenReturn(ResponseMaker.getBadResponse(new ProductResponse(), "BAD"));
 
         final ResponseEntity<ProductResponse> response = productController.postRequest(request);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -47,7 +48,7 @@ public class ProductControllerTest {
     @DisplayName("Ошибка - получение null запроса на создание продукта")
     public void error_nullRequest() {
         Mockito.when(productServiceMock.validateRequest(null))
-                .thenReturn(ProductResponse.getBadResponse("BAD"));
+                .thenReturn(ResponseMaker.getBadResponse(new ProductResponse(), "BAD"));
 
         final ResponseEntity<ProductResponse> response = productController.postRequest(null);
         Assertions.assertEquals(HttpStatus.BAD_REQUEST, response.getStatusCode());
@@ -60,7 +61,7 @@ public class ProductControllerTest {
 
         Mockito.when(productServiceMock.validateRequest(request)).thenReturn(null);
         Mockito.when(productServiceMock.createProduct(request))
-                .thenReturn(ProductResponse.getOkResponse("1"));
+                .thenReturn(ResponseMaker.getOkResponse(new ProductResponse(), "1"));
 
         final ResponseEntity<ProductResponse> response = productController.postRequest(request);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());
@@ -74,7 +75,7 @@ public class ProductControllerTest {
 
         Mockito.when(productServiceMock.validateRequest(request)).thenReturn(null);
         Mockito.when(agreementServiceMock.createAgreement(request))
-                .thenReturn(ProductResponse.getOkResponse("1"));
+                .thenReturn(ResponseMaker.getOkResponse(new ProductResponse(), "1"));
 
         final ResponseEntity<ProductResponse> response = productController.postRequest(request);
         Assertions.assertEquals(HttpStatus.OK, response.getStatusCode());

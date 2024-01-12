@@ -7,6 +7,7 @@ import ru.study.t5_mcsrv.entity.Agreement;
 import ru.study.t5_mcsrv.entity.Product;
 import ru.study.t5_mcsrv.message.ProductRequest;
 import ru.study.t5_mcsrv.message.ProductResponse;
+import ru.study.t5_mcsrv.utils.ResponseMaker;
 import ru.study.t5_mcsrv.repo.AgreementRepository;
 import ru.study.t5_mcsrv.repo.ProductRepository;
 
@@ -28,7 +29,7 @@ public class AgreementService {
         // Проверка на существование договора с ID
         Product product = productRepo.findById(request.getContractId()).orElse(null);
         if (product == null) {
-            return ProductResponse.getNotFoundResponse(
+            return ResponseMaker.getNotFoundResponse(new ProductResponse(),
                     String.format("ЭП с ИД %d не найден в БД", request.getContractId()));
         }
 
@@ -36,7 +37,7 @@ public class AgreementService {
         for (var dc : request.getInstanceAgreements()) {
             final List<Agreement> listDC = agreementRepo.findAgreementsByNumber(dc.getNumber());
             if (!listDC.isEmpty()) {
-                return ProductResponse.getBadResponse(
+                return ResponseMaker.getBadResponse(new ProductResponse(),
                         String.format("Параметр № Дополнительного соглашения (сделки) Number %s уже существует для ЭП с ИД %d",
                                 dc.getNumber(), listDC.get(0).getProductId()));
             }
@@ -45,7 +46,7 @@ public class AgreementService {
         // Проверка на дубли номеров во входящем массиве
         int uniqNumberSize = request.getInstanceAgreements().stream().distinct().toList().size();
         if (uniqNumberSize < request.getInstanceAgreements().size()) {
-            return ProductResponse.getBadResponse(
+            return ResponseMaker.getBadResponse(new ProductResponse(),
                     String.format("Обнаружены дубли параметра № Дополнительного соглашения (сделки) Number для ЭП с ИД %d",
                             request.getContractId()));
         }
@@ -61,7 +62,7 @@ public class AgreementService {
         }
 
         // Формирование ответа
-        ProductResponse response = ProductResponse.getOkResponse(product.getId().toString());
+        ProductResponse response = ResponseMaker.getOkResponse(new ProductResponse(), product.getId().toString());
         response.setSupplementaryAgreementId(agreements.stream().map(agr -> agr.getId().toString()).toList());
         return response;
     }

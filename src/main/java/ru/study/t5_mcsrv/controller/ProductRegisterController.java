@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.study.t5_mcsrv.message.ProductRegisterRequest;
 import ru.study.t5_mcsrv.message.ProductRegisterResponse;
+import ru.study.t5_mcsrv.utils.ResponseMaker;
 import ru.study.t5_mcsrv.service.ProductRegisterService;
 
 @RestController
@@ -35,7 +36,8 @@ public class ProductRegisterController {
         }
         catch (Exception e) {
             log.info(e.toString());
-            return getResponseEntity(ProductRegisterResponse.getInternalErrorResponse(e.toString()));
+            return getResponseEntity(
+                    ResponseMaker.getInternalErrorResponse(new ProductRegisterResponse(), e.toString()));
         }
     }
 

@@ -10,6 +10,7 @@ import ru.study.t5_mcsrv.mapping.ProductRequestMap;
 import ru.study.t5_mcsrv.mapping.ProductRequestToProductMapper;
 import ru.study.t5_mcsrv.message.ProductRequest;
 import ru.study.t5_mcsrv.message.ProductResponse;
+import ru.study.t5_mcsrv.utils.ResponseMaker;
 import ru.study.t5_mcsrv.repo.ProductClassRepository;
 import ru.study.t5_mcsrv.repo.ProductRegisterTypeRepository;
 import ru.study.t5_mcsrv.repo.ProductRepository;
@@ -37,12 +38,12 @@ public class ProductService {
     public ProductResponse validateRequest(ProductRequest request) {
         // Проверка Request.Body на обязательность
         if (request == null) {
-            return ProductResponse.getBadResponse("Request.Body не заполнено.");
+            return ResponseMaker.getBadResponse(new ProductResponse(), "Request.Body не заполнено.");
         }
 
         // Проверка заполненности обязательных полей
         if (!request.isValidate()) {
-            return ProductResponse.getBadResponse(
+            return ResponseMaker.getBadResponse(new ProductResponse(),
                     String.format("Имя обязательного параметра %s не заполнено.", request.getFailField()));
         }
 
@@ -54,14 +55,14 @@ public class ProductService {
         // Проверка таблицы ЭП на дубли
         List<Product> list = productRepo.findProductsByNumber(request.getContractNumber());
         if (!list.isEmpty()) {
-            return ProductResponse.getBadResponse(
+            return ResponseMaker.getBadResponse(new ProductResponse(),
                     String.format("Параметр ContractNumber № договора %s уже существует для ЭП с ИД %d",
                     request.getContractNumber(), list.get(0).getId()));
         }
 
         ProductClass productClass = productClassRepo.findProductClassByValue(request.getProductCode());
         if (productClass == null) {
-            return ProductResponse.getNotFoundResponse(
+            return ResponseMaker.getNotFoundResponse(new ProductResponse(),
                     String.format("КодПродукта %s не найден в Каталоге продуктов", request.getProductCode()));
         }
 
@@ -70,7 +71,7 @@ public class ProductService {
                 productRegisterTypeRepo.findProductRegisterTypesByProductClassCodeAndAccountType(
                         request.getProductCode(), CLIENT_ACCOUNT_TYPE);
         if (prodRegTypeList.isEmpty()) {
-            return ProductResponse.getNotFoundResponse(
+            return ResponseMaker.getNotFoundResponse(new ProductResponse(),
                     String.format("Список ТипРегистра не найден в Каталоге типа регистра по КодПродукта %s",
                     request.getProductCode()));
         }
@@ -88,7 +89,7 @@ public class ProductService {
         request.setInstanceId(product.getId());
         List<Long> productRegisters = productRegisterService.createProductRegisters(prodRegTypeList, request);
 
-        ProductResponse response = ProductResponse.getOkResponse(product.getId().toString());
+        ProductResponse response = ResponseMaker.getOkResponse(new ProductResponse(), product.getId().toString());
         response.setRegisterId(productRegisters.stream().map(Object::toString).toList());
         return response;
     }
