@@ -1,5 +1,6 @@
 package ru.study.t5_mcsrv.controller;
 
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +14,7 @@ import ru.study.t5_mcsrv.service.ProductRegisterService;
 
 @RestController
 @Slf4j
+@Setter
 @RequestMapping(path = "${rest.account-endpoint}", produces = "application/json")
 public class ProductRegisterController {
     @Autowired
