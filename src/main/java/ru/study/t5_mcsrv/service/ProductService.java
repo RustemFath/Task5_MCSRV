@@ -77,9 +77,10 @@ public class ProductService {
         }
 
         // Подготовка к созданию ЭП
-        ProductRequestMap productRequestMap = ProductRequestMap.createMap()
-                .setProductRequest(request)
-                .setProductClass(productClass);
+        ProductRequestMap productRequestMap = ProductRequestMap.builder()
+                .productRequest(request)
+                .productClass(productClass)
+                .build();
 
         // Добавить запись в таблицу tpp_product
         Product product = productRequestToProductMapper.map(productRequestMap);

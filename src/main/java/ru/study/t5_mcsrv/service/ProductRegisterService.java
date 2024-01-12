@@ -102,9 +102,10 @@ public class ProductRegisterService {
         );
 
         // Подготовка к созданию продуктового регистра
-        ProductRegRequestMap productRegRequestMap = ProductRegRequestMap.createMap()
-                .setProductRegRequest(request)
-                .setAccountId(accountId);
+        ProductRegRequestMap productRegRequestMap = ProductRegRequestMap.builder()
+                .productRegRequest(request)
+                .accountId(accountId)
+                .build();
 
         // Создание продуктового регистра
         ProductRegister productRegister = productRegRequestToProductRegMapper.map(productRegRequestMap);
