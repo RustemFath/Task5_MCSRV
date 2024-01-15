@@ -1,7 +1,7 @@
 package ru.study.t5_mcsrv.message;
 
 import lombok.Data;
-import ru.study.t5_mcsrv.utils.Utils;
+import ru.study.t5_mcsrv.utils.RequestValidator;
 
 import java.util.Date;
 
@@ -97,8 +97,8 @@ public class InstanceAgreement extends RequestValidator {
 
     @Override
     public boolean isValidate() {
-        if (Utils.isFailField(number, () -> setFailField("number"))) return false;
-        if (Utils.isFailField(openingDate, () -> setFailField("openingDate"))) return false;
+        if (RequestValidator.isFailField(number, () -> setFailField("number"))) return false;
+        if (RequestValidator.isFailField(openingDate, () -> setFailField("openingDate"))) return false;
         return true;
     }
 }

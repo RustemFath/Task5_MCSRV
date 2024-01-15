@@ -17,6 +17,4 @@ public class ProductRegRequestToProductRegMapper implements Mappable<ProductRegR
 
         return productRegister;
     }
-
-
 }

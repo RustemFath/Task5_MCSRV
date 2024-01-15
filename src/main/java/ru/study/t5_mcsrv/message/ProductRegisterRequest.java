@@ -1,7 +1,7 @@
 package ru.study.t5_mcsrv.message;
 
 import lombok.Data;
-import ru.study.t5_mcsrv.utils.Utils;
+import ru.study.t5_mcsrv.utils.RequestValidator;
 
 /**
  * Запрос на создание Продуктового регистра
@@ -60,11 +60,11 @@ public class ProductRegisterRequest extends RequestValidator {
      */
     @Override
     public boolean isValidate() {
-        if (Utils.isFailField(instanceId, () -> setFailField("instanceId"))) return false;
-        if (Utils.isFailField(registerTypeCode, () -> setFailField("registerTypeCode"))) return false;
-        if (Utils.isFailField(accountType, () -> setFailField("accountType"))) return false;
-        if (Utils.isFailField(currencyCode, () -> setFailField("currencyCode"))) return false;
-        if (Utils.isFailField(priorityCode, () -> setFailField("priorityCode"))) return false;
+        if (RequestValidator.isFailField(instanceId, () -> setFailField("instanceId"))) return false;
+        if (RequestValidator.isFailField(registerTypeCode, () -> setFailField("registerTypeCode"))) return false;
+        if (RequestValidator.isFailField(accountType, () -> setFailField("accountType"))) return false;
+        if (RequestValidator.isFailField(currencyCode, () -> setFailField("currencyCode"))) return false;
+        if (RequestValidator.isFailField(priorityCode, () -> setFailField("priorityCode"))) return false;
         if (!priorityCode.equals("00")) {
             setFailField("priorityCode");
             return false;
