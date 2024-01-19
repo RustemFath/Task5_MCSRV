@@ -1,5 +1,7 @@
 package ru.study.t5_mcsrv.service;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -19,6 +21,8 @@ import java.util.List;
  * Сервис, создающий продуктовый регистр
  */
 @Service
+@Setter
+@Slf4j
 public class ProductRegisterService {
     @Autowired
     private ProductRepository productRepo;
@@ -38,13 +42,16 @@ public class ProductRegisterService {
     public ProductRegisterResponse validateRequest(ProductRegisterRequest request) {
         // Проверка Request.Body на обязательность
         if (request == null) {
-            return ResponseMaker.getBadResponse(new ProductRegisterResponse(), "Request.Body не заполнено.");
+            String info = "Request.Body не заполнено";
+            log.info(info);
+            return ResponseMaker.getBadResponse(new ProductRegisterResponse(), info);
         }
 
         // Проверка заполненности обязательных полей
         if (!request.isValidate()) {
-            return ResponseMaker.getBadResponse(new ProductRegisterResponse(),
-                    String.format("Имя обязательного параметра %s не заполнено.", request.getFailField()));
+            String info = String.format("Имя обязательного параметра %s не заполнено.", request.getFailField());
+            log.info(info);
+            return ResponseMaker.getBadResponse(new ProductRegisterResponse(), info);
         }
 
         return null;
@@ -56,40 +63,45 @@ public class ProductRegisterService {
         List<ProductRegister> productRegisterList = productRegisterRepo.findProductRegistersByProductIdAndType(
                 request.getInstanceId(), request.getRegisterTypeCode());
         if (!productRegisterList.isEmpty()) {
-            return ResponseMaker.getBadResponse(new ProductRegisterResponse(),
-                    String.format("Параметр registryTypeCode тип регистра %s уже существует для ЭП с ИД %d",
-                            request.getRegisterTypeCode(), productRegisterList.get(0).getProductId()));
+            String info = String.format("Параметр registryTypeCode тип регистра %s уже существует для ЭП с ИД %d",
+                    request.getRegisterTypeCode(), productRegisterList.get(0).getProductId());
+            log.info(info);
+            return ResponseMaker.getBadResponse(new ProductRegisterResponse(), info);
         }
 
         // Получение родительского экземпляра продукта
         Product product = productRepo.findById(request.getInstanceId()).orElse(null);
         if (product == null) {
-            return ResponseMaker.getBadResponse(new ProductRegisterResponse(),
-                    String.format("Экземпляр Продукта с ИД %d не найден в справочнике продуктов",
-                            request.getInstanceId()));
+            String info = String.format("Экземпляр Продукта с ИД %d не найден в справочнике продуктов",
+                    request.getInstanceId());
+            log.info(info);
+            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(), info);
         }
 
         // Получение Кода Продукта по экземпляру продукта
         ProductClass productClass = productClassRepo.findProductClassByInternalId(product.getProductCodeId());
         if (productClass == null) {
-            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(),
-                    String.format("КодПродукта с ИД %d не найден в Каталоге продуктов", product.getProductCodeId()));
+            String info = String.format("КодПродукта с ИД %d не найден в Каталоге продуктов", product.getProductCodeId());
+            log.info(info);
+            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(), info);
         }
 
         // Поиск списка типов регистра по коду продукта
-        List<ProductRegisterType> listProdRegType =
+        List<ProductRegisterType> prodRegTypeList =
                 productRegisterTypeRepo.findProductRegisterTypesByProductClassCode(productClass.getValue());
-        if (listProdRegType.isEmpty()) {
-            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(),
-                    String.format("Список ТипРегистра не найден в Каталоге типа регистра по КодПродукта %s",
-                            productClass.getValue()));
+        if (prodRegTypeList.isEmpty()) {
+            String info = String.format("Список ТипРегистра не найден в Каталоге типа регистра по КодПродукта %s",
+                    productClass.getValue());
+            log.info(info);
+            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(), info);
         }
 
         // Проверка наличия КодаПродукта в списке типов регистра
-        if (listProdRegType.stream().noneMatch(t -> t.getValue().equals(request.getRegisterTypeCode()))) {
-            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(),
-                    String.format("КодПродукта %s не найдено в Каталоге продуктов для данного типа Регистра %s",
-                            productClass.getValue(), request.getRegisterTypeCode()));
+        if (prodRegTypeList.stream().noneMatch(t -> t.getValue().equals(request.getRegisterTypeCode()))) {
+            String info = String.format("КодПродукта %s не найдено в Каталоге продуктов для данного типа Регистра %s",
+                    productClass.getValue(), request.getRegisterTypeCode());
+            log.info(info);
+            return ResponseMaker.getNotFoundResponse(new ProductRegisterResponse(), info);
         }
 
         // Получение номера счета из пула счетов
@@ -111,7 +123,10 @@ public class ProductRegisterService {
         ProductRegister productRegister = productRegRequestToProductRegMapper.map(productRegRequestMap);
         productRegister = productRegisterRepo.save(productRegister);
 
-        return ResponseMaker.getOkResponse(new ProductRegisterResponse(), productRegister.getId().toString());
+        ProductRegisterResponse response =
+                ResponseMaker.getOkResponse(new ProductRegisterResponse(), productRegister.getId().toString());
+        log.info("created PR, response = {}", response);
+        return response;
     }
 
     public List<Long> createProductRegisters(List<ProductRegisterType> types, ProductRequest request) {
@@ -139,6 +154,7 @@ public class ProductRegisterService {
             results.add(productRegister.getId());
         });
 
+        log.info("created PRs, results = {}", results);
         return results;
     }
 
