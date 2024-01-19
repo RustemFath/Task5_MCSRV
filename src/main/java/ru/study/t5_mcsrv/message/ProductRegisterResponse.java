@@ -8,10 +8,10 @@ import lombok.Data;
 @Data
 public class ProductRegisterResponse extends StatusResponse {
     /** Идентификатор продуктового регистра */
-    private String accountId;
+    private String registerId;
 
     @Override
     public void setTextResponse(String text) {
-        setAccountId(text);
+        setRegisterId(text);
     }
 }
