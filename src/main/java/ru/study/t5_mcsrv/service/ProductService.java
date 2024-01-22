@@ -1,5 +1,7 @@
 package ru.study.t5_mcsrv.service;
 
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -21,6 +23,8 @@ import java.util.List;
  * Сервис, создающий экземпляр продукта
  */
 @Service
+@Setter
+@Slf4j
 public class ProductService {
     @Autowired
     private ProductRepository productRepo;
@@ -38,13 +42,16 @@ public class ProductService {
     public ProductResponse validateRequest(ProductRequest request) {
         // Проверка Request.Body на обязательность
         if (request == null) {
-            return ResponseMaker.getBadResponse(new ProductResponse(), "Request.Body не заполнено.");
+            String info = "Request.Body не заполнено";
+            log.info(info);
+            return ResponseMaker.getBadResponse(new ProductResponse(), info);
         }
 
         // Проверка заполненности обязательных полей
         if (!request.isValidate()) {
-            return ResponseMaker.getBadResponse(new ProductResponse(),
-                    String.format("Имя обязательного параметра %s не заполнено.", request.getFailField()));
+            String info = String.format("Имя обязательного параметра %s не заполнено.", request.getFailField());
+            log.info(info);
+            return ResponseMaker.getBadResponse(new ProductResponse(), info);
         }
 
         return null;
@@ -55,15 +62,17 @@ public class ProductService {
         // Проверка таблицы ЭП на дубли
         List<Product> list = productRepo.findProductsByNumber(request.getContractNumber());
         if (!list.isEmpty()) {
-            return ResponseMaker.getBadResponse(new ProductResponse(),
-                    String.format("Параметр ContractNumber № договора %s уже существует для ЭП с ИД %d",
-                    request.getContractNumber(), list.get(0).getId()));
+            String info = String.format("Параметр ContractNumber № договора %s уже существует для ЭП с ИД %d",
+                    request.getContractNumber(), list.get(0).getId());
+            log.info(info);
+            return ResponseMaker.getBadResponse(new ProductResponse(), info);
         }
 
         ProductClass productClass = productClassRepo.findProductClassByValue(request.getProductCode());
         if (productClass == null) {
-            return ResponseMaker.getNotFoundResponse(new ProductResponse(),
-                    String.format("КодПродукта %s не найден в Каталоге продуктов", request.getProductCode()));
+            String info = String.format("КодПродукта %s не найден в Каталоге продуктов", request.getProductCode());
+            log.info(info);
+            return ResponseMaker.getNotFoundResponse(new ProductResponse(), info);
         }
 
         // Поиск списка типов регистра по коду продукта
@@ -71,9 +80,10 @@ public class ProductService {
                 productRegisterTypeRepo.findProductRegisterTypesByProductClassCodeAndAccountType(
                         request.getProductCode(), CLIENT_ACCOUNT_TYPE);
         if (prodRegTypeList.isEmpty()) {
-            return ResponseMaker.getNotFoundResponse(new ProductResponse(),
-                    String.format("Список ТипРегистра не найден в Каталоге типа регистра по КодПродукта %s",
-                    request.getProductCode()));
+            String info = String.format("Список ТипРегистра не найден в Каталоге типа регистра по КодПродукта %s",
+                    request.getProductCode());
+            log.info(info);
+            return ResponseMaker.getNotFoundResponse(new ProductResponse(), info);
         }
 
         // Подготовка к созданию ЭП
@@ -92,6 +102,7 @@ public class ProductService {
 
         ProductResponse response = ResponseMaker.getOkResponse(new ProductResponse(), product.getId().toString());
         response.setRegisterId(productRegisters.stream().map(Object::toString).toList());
+        log.info("created Product, response = {}", response);
         return response;
     }
 }
