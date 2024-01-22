@@ -25,14 +25,14 @@ CREATE TABLE IF NOT EXISTS tpp_ref_account_type
 (
     internal_id bigint
         CONSTRAINT pk_tpp_ref_account_type PRIMARY KEY,
-    value       varchar(50)
+    value_code       varchar(50)
 );
 
 CREATE TABLE IF NOT EXISTS tpp_ref_product_class
 (
     internal_id      bigint
         CONSTRAINT pk_tpp_ref_product_class PRIMARY KEY,
-    value            varchar(100),
+    value_code       varchar(100),
     gbl_code         varchar(10),
     gbl_name         varchar(100),
     product_row_code varchar(10),
@@ -45,7 +45,7 @@ CREATE TABLE IF NOT EXISTS tpp_ref_product_register_type
 (
     internal_id              bigint
         CONSTRAINT pk_tpp_ref_product_register_type PRIMARY KEY,
-    value                    varchar(100),
+    value_code               varchar(100),
     register_type_name       varchar(100),
     product_class_code       varchar(25),
     account_type             varchar(50)

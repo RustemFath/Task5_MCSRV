@@ -1,5 +1,5 @@
 insert into tpp_ref_product_register_type( internal_id
-                                         , value
+                                         , value_code
                                          , register_type_name
                                          , product_class_code
                                          , account_type)
@@ -10,7 +10,7 @@ values ( NEXTVAL('table_id_seq')
        , 'Клиентский');
 
 insert into tpp_ref_product_register_type( internal_id
-                                         , value
+                                         , value_code
                                          , register_type_name
                                          , product_class_code
                                          , account_type)
@@ -22,17 +22,17 @@ values ( NEXTVAL('table_id_seq')
 
 
 insert into tpp_ref_account_type( internal_id
-                                , value)
+                                , value_code)
 values ( NEXTVAL('table_id_seq')
        , 'Клиентский');
 
 insert into tpp_ref_account_type( internal_id
-                                , value)
+                                , value_code)
 values ( NEXTVAL('table_id_seq')
        , 'Внутрибанковский');
 
 insert into tpp_ref_product_class( internal_id
-                                 , value
+                                 , value_code
                                  , gbl_code
                                  , gbl_name
                                  , product_row_code
@@ -49,7 +49,7 @@ values ( NEXTVAL('table_id_seq')
        , 'Хранение');
 
 insert into tpp_ref_product_class( internal_id
-                                 , value
+                                 , value_code
                                  , gbl_code
                                  , gbl_name
                                  , product_row_code

@@ -17,6 +17,7 @@ public class ProductRegisterType {
     @Column(name = "internal_id")
     private Long internalId;
 
+    @Column(name = "value_code")
     private String value;
 
     @Column(name = "register_type_name")
